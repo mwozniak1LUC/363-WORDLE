@@ -25,7 +25,7 @@ public class Wordle {
             }
             guess_count++;
         }
-        if (guess != word) {
+        if (!guess.equals(word)) {
             System.out.println("GOOD TRY, THE CORRECT WORD WAS " + word);
         }
     }
