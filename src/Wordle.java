@@ -9,6 +9,7 @@ public class Wordle {
     List<String> wordList;
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_RESET = "\u001B[0m";
 
     public Wordle() {
@@ -32,36 +33,52 @@ public class Wordle {
 
     public String getRandomWord(List<String> wordList) {
         Random rand = new Random();
-        int int_random = rand.nextInt(wordList.size());
-        return wordList.get(int_random);
+        int selection = rand.nextInt(wordList.size());
+        return wordList.get(selection);
+    }
+
+    public String wordChecker(String guess, String word) {
+        String result = "";
+        if (guess.equals(word)) {
+            return "WINNER! THE CORRECT WORD WAS " + ANSI_GREEN + word + ANSI_RESET;
+        } else {
+            for (int i = 0; i < guess.length(); i++) {
+                if (guess.charAt(i) == word.charAt(i)) {
+                    result += ANSI_GREEN + guess.charAt(i) + ANSI_RESET;
+                } else if (word.indexOf(guess.charAt(i)) != -1) {
+                    result += ANSI_YELLOW + guess.charAt(i) + ANSI_RESET;
+                } else {
+                    result += guess.charAt(i);
+                }
+            }
+        }
+        return result;
     }
 
     public void runGame() {
-        String word = getRandomWord(wordList).toUpperCase();
-        Scanner input = new Scanner(System.in);
-        System.out.println("Welcome to Wordle, Guess the 5-letter word in 6 guesses");
-        int guess_count = 1;
-        String guess = "";
-        while (guess_count <= 6 && !guess.equals(word)) {
-            System.out.println("\nGUESS " + guess_count + ": ");
-            guess = input.nextLine().toUpperCase();
-            if (guess.equals(word)) {
-                System.out.println("WINNER! THE WORD WAS " + guess);
-            } else {
-                for (int i = 0; i < guess.length(); i++) {
-                    if (guess.charAt(i) == word.charAt(i)) {
-                        System.out.print(ANSI_GREEN + guess.charAt(i) + ANSI_RESET);
-                    } else if (word.indexOf(guess.charAt(i)) != -1) {
-                        System.out.print(ANSI_YELLOW + guess.charAt(i) + ANSI_RESET);
-                    } else {
-                        System.out.print(guess.charAt(i));
-                    }
+        while (true) {
+            String word = getRandomWord(wordList).toUpperCase();
+            Scanner input = new Scanner(System.in);
+            AutoGuesser ai = new AutoGuesser(wordList);
+            int numGuessesToBeat = ai.guesses();
+            System.out.println(ANSI_BLUE + "WELCOME TO MAN VS MACHINE WORDLE, TRY TO GUESS THE FIVE-LETTER WORD!" + ANSI_RESET);
+            System.out.println(ANSI_BLUE + "OUR ALGORITHM FOUND THE WORD IN " +
+                               ANSI_GREEN + numGuessesToBeat + " GUESSES" + ANSI_BLUE + ", CAN YOU BEAT THAT?" + ANSI_RESET);
+            int guess_count = 1;
+            String guess = "";
+            while (guess_count <= numGuessesToBeat && !guess.equals(word)) {
+                System.out.println("\nGUESS " + guess_count + ": ");
+                guess = input.nextLine().toUpperCase();
+                if (guess.length() == 5) {
+                    System.out.println(wordChecker(guess, word));
+                    guess_count++;
+                } else {
+                    System.out.println("TRY AGAIN");
                 }
             }
-            guess_count++;
-        }
-        if (!guess.equals(word)) {
-            System.out.println("\n\nGOOD TRY, THE CORRECT WORD WAS " + ANSI_GREEN + word + ANSI_RESET);
+            if (!guess.equals(word)) {
+                System.out.println("\n\nGOOD TRY, THE CORRECT WORD WAS " + ANSI_GREEN + word + ANSI_RESET + "\n");
+            }
         }
     }
 }
