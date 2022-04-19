@@ -9,7 +9,7 @@ public class Wordle {
     /** TODO: document */
     /** TODO: implement TRIE data structure? */
 
-    List<String> wordList;
+    public List<String> wordList;
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
@@ -64,7 +64,6 @@ public class Wordle {
     }
 
     public void runGame() {
-        while (true) {
             String word = getRandomWord(wordList).toUpperCase();
             Scanner input = new Scanner(System.in);
             AutoGuesser ai = new AutoGuesser(wordList);
@@ -72,8 +71,8 @@ public class Wordle {
             String guess = "";
             int numGuessesToBeat = ai.guesses(word);
             System.out.println(ANSI_BLUE + "WELCOME TO MAN VS MACHINE WORDLE, TRY TO GUESS THE FIVE-LETTER WORD!");
-            System.out.println(ANSI_BLUE + "OUR ALGORITHM FOUND THE WORD IN " + ANSI_GREEN + numGuessesToBeat + " GUESSES" +
-                               ANSI_GREEN + numGuessesToBeat + " GUESSES" + ANSI_BLUE + ", CAN YOU BEAT THAT?" + ANSI_RESET);
+            System.out.println(ANSI_BLUE + "OUR ALGORITHM FOUND THE WORD IN " + ANSI_GREEN + numGuessesToBeat +
+                              " GUESSES" + ANSI_BLUE + ", CAN YOU BEAT THAT?" + ANSI_RESET);
             while (guess_count <= numGuessesToBeat && !guess.equals(word)) {
                 System.out.println("\nGUESS " + guess_count + ": ");
                 guess = input.nextLine().toUpperCase();
@@ -89,5 +88,4 @@ public class Wordle {
             }
         }
     }
-}
 
