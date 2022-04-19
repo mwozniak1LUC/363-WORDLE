@@ -10,7 +10,8 @@ public class AutoGuesser {
         this.guessesTaken = 0;
     }
 
-    public int guesses() {
+    public int guesses(String correctWord) {
+        /** TODO: need to make this have a systemic approach using the wordList and strategic guessing strategy to guess the correct word in as few number of guesses possible.*/
         return 6;
     }
 
