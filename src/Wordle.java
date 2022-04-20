@@ -1,90 +1,98 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Wordle {
 
-    /** TODO: document */
-    /** TODO: implement TRIE data structure? */
+    /** class instance variables */
+    private int guessLimit;
+    private Trie wordTrie;
+    private String word;
 
-    public List<String> wordList;
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_RESET = "\u001B[0m";
+    /** colors for use in terminal console */
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_RESET = "\u001B[0m";
 
+    /** Constructor */
     public Wordle() {
-        this.wordList = readInWords("five_letter_words.txt");
+        this.guessLimit = 6;
+        this.wordTrie = buildWordTrie("five_letter_words.txt");
+        this.word = wordTrie.getRandomWord();
     }
 
-    public List<String> readInWords(String fileName) {
+    /** Builds the Trie data structure using the five_letter_words.txt */
+    public Trie buildWordTrie(String fileName) {
         try {
             Scanner s = new Scanner(new File(fileName));
-            ArrayList<String> list = new ArrayList();
+            Trie wordTrie = new Trie();
             while (s.hasNext()){
-                list.add(s.next());
+                wordTrie.insert(s.next().toUpperCase());
             }
             s.close();
-            return list;
+            return wordTrie;
         } catch (Exception e){
             System.out.println("Error: " + e);
         }
        return null;
     }
 
-    public String getRandomWord(List<String> wordList) {
-        Random rand = new Random();
-        int selection = rand.nextInt(wordList.size());
-        return wordList.get(selection);
-    }
-
+    /** Checks for any correct/incorrect letter positions in a given guess */
     public String wordChecker(String guess, String word) {
         String result = "";
         if (guess.equals(word)) {
             return "WINNER! THE CORRECT WORD WAS " + ANSI_GREEN + word + ANSI_RESET;
         } else {
             for (int i = 0; i < guess.length(); i++) {
+                /** correct letter position (green) */
                 if (guess.charAt(i) == word.charAt(i)) {
                     result += ANSI_GREEN + guess.charAt(i) + ANSI_RESET;
-                } else if (word.indexOf(guess.charAt(i)) != -1) {
-                    result += ANSI_YELLOW + guess.charAt(i) + ANSI_RESET;
-                } else {
-                    result += guess.charAt(i);
+                }
+                else {
+                    /** word contains letter, but in different position (yellow)
+                     *  ~ handles duplicate letters being made yellow when the correct position was already found */
+                    int dupCheck = word.indexOf(guess.charAt(i));
+                    if (dupCheck != -1 && guess.charAt(dupCheck) != guess.charAt(i)) {
+                        result += ANSI_YELLOW + guess.charAt(i) + ANSI_RESET;
+                    } else {
+                        /** letter not present in word */
+                        result += guess.charAt(i);
+                    }
                 }
             }
         }
         return result;
     }
 
+    /** Uses essentially BFS to search the trie for if a given guess is a valid english word */
     public boolean isValidWord(String guess) {
-        /** TODO: implement check for guess being valid english word **/
-        return true;
+        return wordTrie.search(guess);
     }
 
+    /** returns the trie (for testing purposes) */
+    public Trie getWordTrie() {
+        return this.wordTrie;
+    }
+
+    /** Workhorse method that runs the game */
     public void runGame() {
-            String word = getRandomWord(wordList).toUpperCase();
             Scanner input = new Scanner(System.in);
-            AutoGuesser ai = new AutoGuesser(wordList);
             int guess_count = 1;
             String guess = "";
-            int numGuessesToBeat = ai.guesses(word);
-            System.out.println(ANSI_BLUE + "WELCOME TO MAN VS MACHINE WORDLE, TRY TO GUESS THE FIVE-LETTER WORD!");
-            System.out.println(ANSI_BLUE + "OUR ALGORITHM FOUND THE WORD IN " + ANSI_GREEN + numGuessesToBeat +
-                              " GUESSES" + ANSI_BLUE + ", CAN YOU BEAT THAT?" + ANSI_RESET);
-            while (guess_count <= numGuessesToBeat && !guess.equals(word)) {
+            System.out.println(ANSI_BLUE + "WELCOME TO WORDLE, TRY TO GUESS THE FIVE-LETTER WORD IN 6 GUESSES!" + ANSI_RESET);
+            while (guess_count <= guessLimit && !guess.equals(word)) {
                 System.out.println("\nGUESS " + guess_count + ": ");
                 guess = input.nextLine().toUpperCase();
-                if (guess.length() == 5 && isValidWord(guess)) {
+                if (isValidWord(guess)) {
                     System.out.println(wordChecker(guess, word));
                     guess_count++;
                 } else {
-                    System.out.println("INVALID INPUT. TRY AGAIN");
+                    System.out.println(ANSI_RED + "INVALID INPUT. TRY AGAIN" + ANSI_RESET);
                 }
             }
             if (!guess.equals(word)) {
-                System.out.println("\n\nGOOD TRY, THE CORRECT WORD WAS " + ANSI_GREEN + word + ANSI_RESET + "\n");
+                System.out.println(ANSI_RED + "\n\nGOOD TRY, THE CORRECT WORD WAS " + word + ANSI_RESET + "\n");
             }
         }
     }
