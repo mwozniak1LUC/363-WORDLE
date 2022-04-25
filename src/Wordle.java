@@ -9,10 +9,10 @@ public class Wordle {
     private String word;
 
     /** colors for use in terminal console */
+    private static final String ANSI_GAME = "\u001B[42m" + "\u001B[30m";
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_YELLOW = "\u001B[33m";
-    private static final String ANSI_BLUE = "\u001B[34m";
     private static final String ANSI_RESET = "\u001B[0m";
 
     /** Constructor */
@@ -50,9 +50,9 @@ public class Wordle {
                     result += ANSI_GREEN + guess.charAt(i) + ANSI_RESET;
                 }
                 else {
-                    /** word contains letter, but in different position (yellow)
-                     *  ~ handles duplicate letters being made yellow when the correct position was already found */
+                    /** word contains letter, but in different position (yellow) */
                     int dupCheck = word.indexOf(guess.charAt(i));
+                   /** handles duplicate letters being made yellow when the correct position was already found */
                     if (dupCheck != -1 && guess.charAt(dupCheck) != guess.charAt(i)) {
                         result += ANSI_YELLOW + guess.charAt(i) + ANSI_RESET;
                     } else {
@@ -80,15 +80,14 @@ public class Wordle {
             Scanner input = new Scanner(System.in);
             int guess_count = 1;
             String guess = "";
-            System.out.println(ANSI_BLUE + "WELCOME TO WORDLE, TRY TO GUESS THE FIVE-LETTER WORD IN 6 GUESSES!" + ANSI_RESET);
             while (guess_count <= guessLimit && !guess.equals(word)) {
-                System.out.println("\nGUESS " + guess_count + ": ");
+                System.out.println("\n" + ANSI_GAME + "GUESS " + guess_count + ":" + ANSI_RESET);
                 guess = input.nextLine().toUpperCase();
                 if (isValidWord(guess)) {
                     System.out.println(wordChecker(guess, word));
                     guess_count++;
                 } else {
-                    System.out.println(ANSI_RED + "INVALID INPUT. TRY AGAIN" + ANSI_RESET);
+                    System.out.println(ANSI_RED + "INVALID WORD. TRY AGAIN" + ANSI_RESET);
                 }
             }
             if (!guess.equals(word)) {
