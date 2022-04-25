@@ -4,7 +4,7 @@ import java.util.*;
 class Trie
 {
     private int size;
-    private boolean isLeaf;
+    private boolean isLastLetter;
     private Map<Character, Trie> children;
     private List<String> wordList;
 
@@ -12,45 +12,51 @@ class Trie
     Trie() {
         this.size = 0;
         this.wordList = new ArrayList<>();
-        this.isLeaf = false;
+        this.isLastLetter = false;
         this.children = new HashMap<>();
     }
 
     /** Inserts a string into the Trie */
     public void insert(String key) {
         wordList.add(key);
-        Trie currentSubTrie = this;
+        Trie current = this;
 
         /** goes char by char to make subtrees */
         for (char c: key.toCharArray())
         {
-            currentSubTrie.children.putIfAbsent(c, new Trie());
-            currentSubTrie = currentSubTrie.children.get(c);
+            current.children.putIfAbsent(c, new Trie());
+            current = current.children.get(c);
         }
 
         /** at end of inserted word, mark current as a leaf */
-        currentSubTrie.isLeaf = true;
+        current.isLastLetter = true;
         size++;
     }
 
     /** searches for key in trie, returns true if found */
     public boolean search(String key) {
-        Trie currentSubTrie = this;
+        Trie current = this;
 
-        /** go character by character (subtree by subtree to find the word) */
+        /** go character by character (subtree by subtree -- map by map) */
+        /** Example: KEY = BREAD **/
         for (char c: key.toCharArray())
         {
             /** next subtree */
-            currentSubTrie = currentSubTrie.children.get(c);
+            /** 1st loop: change current to B's subtree if it exists */
+            /** 2nd loop: change current to R's subtree of the B subtree if it exists */
+            /** 3rd loop: change current to E's subtree of the R subtree if it exists */
+            /** 4th loop: change current to A's subtree of the E subtree if it exists */
+            /** 5th loop: change current to D's subtree of the A subtree if it exists */
+            current = current.children.get(c);
 
             /** if next subtree doesn't exist, word not found */
-            if (currentSubTrie == null) {
+            if (current == null) {
                 return false;
             }
         }
 
-        /** is ending char a leaf, if yes then word is found */
-        return currentSubTrie.isLeaf;
+        /** if current node is a leaf, then the word was found */
+        return current.isLastLetter;
     }
 
     /** returns a random word from the trie */
